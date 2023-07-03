@@ -19,8 +19,8 @@ namespace otokomod.MySQL
         {
             _host = "localhost";
             _user = "root";
-            _pass = "";
-            _base = "otoko_server_gta5";
+            _pass = "Putat2156";
+            _base = "otokomod_server_gta5";
         }
 
         public static void InitConnection()

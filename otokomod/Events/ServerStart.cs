@@ -15,6 +15,7 @@ namespace otokomod.Events
         {
             DB.InitConnection();
             MapBlipsDB.LoadBlips();
+            Ped ped = NAPI.Ped.CreatePed(0x2F8845A3, new Vector3(-535, -280, 37), 1f, 4294967295);
         }
 
         [ServerEvent(Event.PlayerConnected)]
@@ -33,7 +34,7 @@ namespace otokomod.Events
                     {
                         while (reader.Read())
                         {
-                            NAPI.ClientEvent.TriggerClientEvent(player, "NewBlip", reader.GetInt32("sprite"),
+                            NAPI.ClientEvent.TriggerClientEvent(player, "blip", reader.GetInt32("sprite"),
                                 new Vector3(reader.GetInt32("x"), reader.GetInt32("y"), reader.GetInt32("z")),
                                 reader.GetFloat("scale"),
                                 (byte)reader.GetInt32("color"),
@@ -48,7 +49,7 @@ namespace otokomod.Events
         [ServerEvent(Event.PlayerSpawn)]
         private void OnPlayerSpawn(Player player)
         {
-            player.Position = new Vector3(-535, -280, 38.2);
+            player.Position = new Vector3(-535, -280, 37);
 
             player.Health = 50;
             player.Armor = 50;
@@ -85,7 +86,7 @@ namespace otokomod.Events
                     {
                         while (reader.Read())
                         {
-                            NAPI.ClientEvent.TriggerClientEvent(player, "NewBlip", reader.GetInt32("sprite"),
+                            NAPI.ClientEvent.TriggerClientEvent(player, "blip", reader.GetInt32("sprite"),
                                 new Vector3(reader.GetInt32("x"), reader.GetInt32("y"), reader.GetInt32("z")),
                                 reader.GetFloat("scale"),
                                 (byte)reader.GetInt32("color"),
