@@ -21,7 +21,6 @@ namespace otokomod.Events.Events
             Accounts.Register(player, firstName, lastName, email, password);
             NAPI.ClientEvent.TriggerClientEvent(player, "closeAuthWindow");
             NAPI.ClientEvent.TriggerClientEvent(player, "PlayerFreeze", false);
-
         }
 
         [RemoteEvent("authOnLogin")]
