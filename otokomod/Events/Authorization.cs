@@ -12,7 +12,7 @@ namespace otokomod.Events.Events
         [RemoteEvent("authOnRegister")]
         private void OnRegister(Player player, string firstName, string lastName, string email, string password)
         {
-            if (PlayersAccountsDB.IsAccountExist(player.Name))
+            if (PlayersAccountsDB.AccountData(player) != null)
             {
                 NAPI.ClientEvent.TriggerClientEvent(player, "showTextError", "An account with this nickname already exists.");
                 return;
@@ -26,7 +26,7 @@ namespace otokomod.Events.Events
         [RemoteEvent("authOnLogin")]
         private void OnLogin(Player player, string email, string password)
         {
-            if (!PlayersAccountsDB.IsAccountExist(player.Name))
+            if (PlayersAccountsDB.AccountData(player) == null)
             {
                 NAPI.ClientEvent.TriggerClientEvent(player, "showTextError", "You are not registered.");
                 return;

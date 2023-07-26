@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Text;
+﻿using System.Data;
 using GTANetworkAPI;
 using MySql.Data.MySqlClient;
 
@@ -9,68 +6,47 @@ namespace otokomod.MySQL
 {
     internal class PlayersAccountsDB
     {
-        public static bool IsAccountExist(string nickName)
+        public static DataTable AccountData(Player player)
         {
-            MySqlCommand command = DB.connection.CreateCommand();
-            command.CommandText = "SELECT * FROM players_accounts WHERE nickName=@nickName LIMIT 1";
-            command.Parameters.AddWithValue("@nickName", nickName);
-
-            using (MySqlDataReader reader = command.ExecuteReader())
+            using MySqlCommand cmd = new MySqlCommand()
             {
-                if (reader.HasRows)
-                {
-                    return true;
-                }
-                return false;
-            }
+                CommandText = "SELECT * FROM players_accounts WHERE nickName=@nickName LIMIT 1"
+            };
+            cmd.Parameters.AddWithValue("@nickName", player.Name);
+
+            using DataTable result = DB.QueryRead("main", cmd);
+
+            return result;
+
         }
 
         public static void NewAccountRegister(Player player, string firstName, string lastName, string email, string password)
         {
             string saltPw = BCrypt.HashPassword(password, BCrypt.GenerateSalt());
 
-            try
+            using MySqlCommand cmd = new MySqlCommand
             {
-                MySqlCommand command = DB.connection.CreateCommand();
+                CommandText = "INSERT INTO players_accounts (pass, nickName, email, firstName, lastName) VALUES (@pass, @nickName, @email, @firstName, @lastName)"
+            };
+            cmd.Parameters.AddWithValue("@pass", saltPw);
+            cmd.Parameters.AddWithValue("@nickName", player.Name);
+            cmd.Parameters.AddWithValue("@email", email);
+            cmd.Parameters.AddWithValue("@firstName", firstName);
+            cmd.Parameters.AddWithValue("@lastName", lastName);
 
-                command.CommandText = "INSERT INTO players_accounts (pass, nickName, email, firstName, lastName) VALUES (@pass, @nickName, @email, @firstName, @lastName)";
-                command.Parameters.AddWithValue("@pass", saltPw);
-                command.Parameters.AddWithValue("@nickName", player.Name);
-                command.Parameters.AddWithValue("@email", email);
-                command.Parameters.AddWithValue("@firstName", firstName);
-                command.Parameters.AddWithValue("@lastName", lastName);
-
-                command.ExecuteNonQuery();
-
-                command.CommandText = $"CREATE TABLE {player.Name} AS SELECT * FROM map_blips";
-
-                command.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                NAPI.Util.ConsoleOutput("Exception: " + ex.ToString());
-            }
-
-
+            DB.Query("main", cmd);
         }
 
-        public static void LoadAccount(Player player)
+        /*public static void LoadAccount(Player player)
         {
-            MySqlCommand command = DB.connection.CreateCommand();
-
-            command.CommandText = "SELECT * FROM players_accounts WHERE nickName=@nickName LIMIT 1";
-            command.Parameters.AddWithValue("@nickName", player.Name);
-
-            using (MySqlDataReader reader = command.ExecuteReader())
+            using MySqlCommand cmd = new MySqlCommand()
             {
-                if (reader.HasRows)
-                {
-                    reader.Read();
-                    
-                }
+                CommandText = "SELECT * FROM players_accounts WHERE nickName=@nickName LIMIT 1"
+            };
+            cmd.Parameters.AddWithValue("@nickName", player.Name);
 
-            }
-        }
+            using DataTable result = DB.QueryRead("main", cmd);
+        }*/
 
         /*public static void SaveAccount(Accounts account)
         {
@@ -85,17 +61,18 @@ namespace otokomod.MySQL
         {
             string tempPass = " ";
 
-            MySqlCommand command = DB.connection.CreateCommand();
-            command.CommandText = "SELECT pass FROM players_accounts WHERE email=@email LIMIT 1";
-            command.Parameters.AddWithValue("@email", email);
-
-            using (MySqlDataReader reader = command.ExecuteReader())
+            using MySqlCommand cmd = new MySqlCommand()
             {
-                if (reader.HasRows)
-                {
-                    reader.Read();
-                    tempPass = reader.GetString("pass");
-                }
+                CommandText = "SELECT pass FROM players_accounts WHERE email=@email LIMIT 1"
+            };
+            cmd.Parameters.AddWithValue("@email", email);
+
+            using DataTable result = DB.QueryRead("main", cmd);
+
+            if (result != null && result.Rows.Count >= 1)
+            {
+                var dateRow = result.Rows[0];
+                tempPass = dateRow["pass"].ToString();
             }
 
             if (BCrypt.CheckPassword(inputPassword, tempPass)) return true;

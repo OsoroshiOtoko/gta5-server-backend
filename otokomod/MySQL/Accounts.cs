@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using GTANetworkAPI;
+﻿using GTANetworkAPI;
 
 namespace otokomod.MySQL
 {
@@ -15,7 +12,7 @@ namespace otokomod.MySQL
 
         public static void Login(Player player, bool isFirstLogin)
         {
-            LoadAccount(player);
+            AccountData(player);
 
             if (isFirstLogin)
             {
